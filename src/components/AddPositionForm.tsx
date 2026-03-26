@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { calculatePositionMetrics, calculateTotalEquity } from '../utils/calculations';
 import { Position } from '../types';
 
@@ -6,7 +6,6 @@ type AddPositionFormProps = {
   isOpen: boolean;
   cash: number;
   positions: Position[];
-  initialEquity: number;
   onAdd: (position: Omit<Position, 'id'>) => void;
   onClose: () => void;
 };
@@ -15,7 +14,6 @@ export function AddPositionForm({
   isOpen,
   cash,
   positions,
-  initialEquity,
   onAdd,
   onClose,
 }: AddPositionFormProps) {

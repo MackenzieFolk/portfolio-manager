@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { usePortfolio } from './hooks/usePortfolio';
 import { SettingsModal } from './components/SettingsModal';
 import { PortfolioSummary } from './components/PortfolioSummary';
@@ -96,7 +96,6 @@ function App() {
                 <PositionsList
                   positions={portfolio.state.positions}
                   cash={portfolio.state.cash}
-                  initialEquity={portfolio.state.initialEquity}
                   onClose={handleClosePosition}
                 />
                 <button
@@ -127,7 +126,6 @@ function App() {
         isOpen={showAddPositionForm}
         cash={portfolio.state.cash}
         positions={portfolio.state.positions}
-        initialEquity={portfolio.state.initialEquity}
         onAdd={handleAddPosition}
         onClose={() => setShowAddPositionForm(false)}
       />

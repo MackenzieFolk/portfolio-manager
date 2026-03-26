@@ -1,4 +1,3 @@
-import React from 'react';
 import { calculateTotalEquity } from '../utils/calculations';
 import { Position } from '../types';
 

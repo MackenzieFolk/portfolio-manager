@@ -26,7 +26,7 @@ export function usePortfolio() {
     setState(prev => ({
       ...prev,
       initialEquity: equity,
-      cash: prev.cash === 0 ? equity : prev.cash,
+      cash: prev.cash === prev.initialEquity ? equity : prev.cash,
     }));
   }, []);
 

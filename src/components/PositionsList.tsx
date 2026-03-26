@@ -1,18 +1,15 @@
-import React from 'react';
 import { calculatePositionMetrics, calculateTotalEquity } from '../utils/calculations';
 import { Position } from '../types';
 
 type PositionsListProps = {
   positions: Position[];
   cash: number;
-  initialEquity: number;
   onClose: (positionId: string) => void;
 };
 
 export function PositionsList({
   positions,
   cash,
-  initialEquity,
   onClose,
 }: PositionsListProps) {
   const totalEquity = calculateTotalEquity(positions, cash);

@@ -1,4 +1,3 @@
-import React from 'react';
 import { calculateClosedTradeMetrics } from '../utils/calculations';
 import { ClosedTrade } from '../types';
 
