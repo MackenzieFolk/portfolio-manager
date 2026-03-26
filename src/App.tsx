@@ -109,6 +109,7 @@ function App() {
                   cash={portfolio.state.cash}
                   onClose={handleClosePosition}
                   onEdit={handleEditPosition}
+                  onUpdateLastPrice={portfolio.updateLastPrice}
                 />
                 <button
                   onClick={() => setShowAddPositionForm(true)}

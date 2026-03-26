@@ -86,6 +86,15 @@ export function usePortfolio() {
     });
   }, []);
 
+  const updateLastPrice = useCallback((positionId: string, lastPrice: number | undefined) => {
+    setState(prev => ({
+      ...prev,
+      positions: prev.positions.map(p =>
+        p.id === positionId ? { ...p, lastPrice } : p
+      ),
+    }));
+  }, []);
+
   const updateCash = useCallback((amount: number) => {
     setState(prev => ({
       ...prev,
@@ -114,6 +123,7 @@ export function usePortfolio() {
     addPosition,
     editPosition,
     closePosition,
+    updateLastPrice,
     updateCash,
     deletePosition,
     resetState,

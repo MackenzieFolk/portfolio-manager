@@ -55,24 +55,20 @@ export function calculateClosedTradeMetrics(
   };
 }
 
-export function calculateTotalEquity(
-  positions: Position[],
-  cash: number,
-  currentPrices?: Record<string, number>
-): number {
-  let positionsValue = 0;
-
-  if (currentPrices) {
-    positionsValue = positions.reduce((sum, pos) => {
-      const price = currentPrices[pos.ticker] || pos.entryPrice;
-      return sum + price * pos.shares;
-    }, 0);
-  } else {
-    // If no current prices, use entry prices
-    positionsValue = positions.reduce((sum, pos) => {
-      return sum + pos.entryPrice * pos.shares;
-    }, 0);
-  }
-
+export function calculateTotalEquity(positions: Position[], cash: number): number {
+  const positionsValue = positions.reduce((sum, pos) => {
+    return sum + (pos.lastPrice ?? pos.entryPrice) * pos.shares;
+  }, 0);
   return positionsValue + cash;
+}
+
+export function calculateOpenGain(position: Position): { dollar: number; percent: number } | null {
+  if (position.lastPrice == null) return null;
+  const bookCost = position.entryPrice * position.shares;
+  const dollar =
+    position.type === 'long'
+      ? (position.lastPrice - position.entryPrice) * position.shares
+      : (position.entryPrice - position.lastPrice) * position.shares;
+  const percent = (dollar / bookCost) * 100;
+  return { dollar, percent };
 }

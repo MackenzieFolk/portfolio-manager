@@ -1,4 +1,5 @@
-import { calculatePositionMetrics, calculateTotalEquity } from '../utils/calculations';
+import { useState } from 'react';
+import { calculatePositionMetrics, calculateTotalEquity, calculateOpenGain } from '../utils/calculations';
 import { Position } from '../types';
 
 type PositionsListProps = {
@@ -6,6 +7,7 @@ type PositionsListProps = {
   cash: number;
   onClose: (positionId: string) => void;
   onEdit: (positionId: string) => void;
+  onUpdateLastPrice: (positionId: string, lastPrice: number | undefined) => void;
 };
 
 export function PositionsList({
@@ -13,8 +15,24 @@ export function PositionsList({
   cash,
   onClose,
   onEdit,
+  onUpdateLastPrice,
 }: PositionsListProps) {
+  const [editingPrice, setEditingPrice] = useState<Record<string, string>>({});
   const totalEquity = calculateTotalEquity(positions, cash);
+
+  const handleLastPriceChange = (positionId: string, value: string) => {
+    setEditingPrice(prev => ({ ...prev, [positionId]: value }));
+  };
+
+  const handleLastPriceBlur = (positionId: string, value: string) => {
+    const num = parseFloat(value);
+    onUpdateLastPrice(positionId, isNaN(num) ? undefined : num);
+    setEditingPrice(prev => {
+      const next = { ...prev };
+      delete next[positionId];
+      return next;
+    });
+  };
 
   if (positions.length === 0) {
     return (
@@ -33,6 +51,9 @@ export function PositionsList({
             <th className="px-4 py-3 text-left font-semibold text-gray-200">Type</th>
             <th className="px-4 py-3 text-right font-semibold text-gray-200">Shares</th>
             <th className="px-4 py-3 text-right font-semibold text-gray-200">Entry Price</th>
+            <th className="px-4 py-3 text-right font-semibold text-gray-200">Last Price</th>
+            <th className="px-4 py-3 text-right font-semibold text-gray-200">Open Gain $</th>
+            <th className="px-4 py-3 text-right font-semibold text-gray-200">Open Gain %</th>
             <th className="px-4 py-3 text-right font-semibold text-gray-200">Stop</th>
             <th className="px-4 py-3 text-right font-semibold text-gray-200">Book Cost</th>
             <th className="px-4 py-3 text-right font-semibold text-gray-200">Risk $</th>
@@ -48,6 +69,14 @@ export function PositionsList({
         <tbody>
           {positions.map(position => {
             const metrics = calculatePositionMetrics(position, totalEquity);
+            const openGain = calculateOpenGain(position);
+            const lastPriceValue =
+              editingPrice[position.id] !== undefined
+                ? editingPrice[position.id]
+                : position.lastPrice !== undefined
+                ? String(position.lastPrice)
+                : '';
+
             return (
               <tr key={position.id} className="border-b border-gray-700 hover:bg-gray-700">
                 <td className="px-4 py-3 font-semibold text-white">{position.ticker}</td>
@@ -64,6 +93,29 @@ export function PositionsList({
                 </td>
                 <td className="px-4 py-3 text-right text-gray-300">{position.shares}</td>
                 <td className="px-4 py-3 text-right text-gray-300">${position.entryPrice.toFixed(2)}</td>
+                <td className="px-4 py-3 text-right">
+                  <input
+                    type="number"
+                    value={lastPriceValue}
+                    onChange={e => handleLastPriceChange(position.id, e.target.value)}
+                    onBlur={e => handleLastPriceBlur(position.id, e.target.value)}
+                    placeholder="—"
+                    step="0.01"
+                    className="w-24 px-2 py-1 bg-gray-600 border border-gray-500 rounded text-white text-right placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  />
+                </td>
+                <td className={`px-4 py-3 text-right font-semibold ${
+                  openGain === null ? 'text-gray-500' :
+                  openGain.dollar >= 0 ? 'text-green-400' : 'text-red-400'
+                }`}>
+                  {openGain === null ? '—' : `${openGain.dollar >= 0 ? '+' : ''}$${openGain.dollar.toFixed(2)}`}
+                </td>
+                <td className={`px-4 py-3 text-right font-semibold ${
+                  openGain === null ? 'text-gray-500' :
+                  openGain.percent >= 0 ? 'text-green-400' : 'text-red-400'
+                }`}>
+                  {openGain === null ? '—' : `${openGain.percent >= 0 ? '+' : ''}${openGain.percent.toFixed(2)}%`}
+                </td>
                 <td className="px-4 py-3 text-right text-gray-300">${position.stopPrice.toFixed(2)}</td>
                 <td className="px-4 py-3 text-right font-semibold text-white">
                   ${metrics.bookCost.toFixed(2)}

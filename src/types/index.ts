@@ -6,6 +6,7 @@ export type Position = {
   shares: number;
   entryPrice: number;
   stopPrice: number;
+  lastPrice?: number;
   entryReason?: string;
 };
 
