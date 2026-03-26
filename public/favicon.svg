@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <rect width="256" height="256" fill="#1f2937"/>
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#60a5fa;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <!-- Chart bars -->
+  <rect x="50" y="150" width="35" height="70" fill="url(#grad)" rx="4"/>
+  <rect x="110" y="100" width="35" height="120" fill="url(#grad)" rx="4"/>
+  <rect x="170" y="80" width="35" height="140" fill="url(#grad)" rx="4"/>
+  <!-- Dollar sign -->
+  <text x="128" y="45" font-size="48" font-weight="bold" fill="#10b981" text-anchor="middle" font-family="Arial, sans-serif">$</text>
+</svg>
