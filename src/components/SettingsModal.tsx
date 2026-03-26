@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 type SettingsModalProps = {
   initialEquity: number;
@@ -8,6 +8,12 @@ type SettingsModalProps = {
 
 export function SettingsModal({ initialEquity, isOpen, onSave }: SettingsModalProps) {
   const [equity, setEquity] = useState(initialEquity.toString());
+
+  useEffect(() => {
+    if (isOpen) {
+      setEquity(initialEquity > 0 ? initialEquity.toString() : '');
+    }
+  }, [isOpen, initialEquity]);
 
   const handleSave = () => {
     const value = parseFloat(equity);

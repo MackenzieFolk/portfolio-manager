@@ -23,11 +23,14 @@ export function usePortfolio() {
   }, [state]);
 
   const setInitialEquity = useCallback((equity: number) => {
-    setState(prev => ({
-      ...prev,
-      initialEquity: equity,
-      cash: prev.cash === prev.initialEquity ? equity : prev.cash,
-    }));
+    setState(prev => {
+      const noActivity = prev.positions.length === 0 && prev.closedTrades.length === 0;
+      return {
+        ...prev,
+        initialEquity: equity,
+        cash: noActivity ? equity : prev.cash,
+      };
+    });
   }, []);
 
   const addPosition = useCallback((position: Omit<Position, 'id'>) => {
