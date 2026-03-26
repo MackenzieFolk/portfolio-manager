@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { calculatePositionMetrics, calculateTotalEquity, calculateOpenGain } from '../utils/calculations';
+import { fetchQuote } from '../utils/fetchQuote';
 import { Position } from '../types';
 
 type PositionsListProps = {
@@ -18,7 +19,26 @@ export function PositionsList({
   onUpdateLastPrice,
 }: PositionsListProps) {
   const [editingPrice, setEditingPrice] = useState<Record<string, string>>({});
+  const [loadingQuote, setLoadingQuote] = useState<Record<string, boolean>>({});
+  const [quoteError, setQuoteError] = useState<Record<string, string>>({});
   const totalEquity = calculateTotalEquity(positions, cash);
+
+  const refreshQuote = async (positionId: string, ticker: string) => {
+    setLoadingQuote(prev => ({ ...prev, [positionId]: true }));
+    setQuoteError(prev => ({ ...prev, [positionId]: '' }));
+    try {
+      const price = await fetchQuote(ticker);
+      onUpdateLastPrice(positionId, price);
+    } catch (err: any) {
+      setQuoteError(prev => ({ ...prev, [positionId]: err.message ?? 'Error' }));
+    } finally {
+      setLoadingQuote(prev => ({ ...prev, [positionId]: false }));
+    }
+  };
+
+  const refreshAll = async () => {
+    await Promise.all(positions.map(p => refreshQuote(p.id, p.ticker)));
+  };
 
   const handleLastPriceChange = (positionId: string, value: string) => {
     setEditingPrice(prev => ({ ...prev, [positionId]: value }));
@@ -44,6 +64,15 @@ export function PositionsList({
 
   return (
     <div className="bg-gray-800 rounded-lg shadow-md overflow-x-auto border border-gray-700">
+      <div className="flex justify-end px-4 pt-3">
+        <button
+          onClick={refreshAll}
+          disabled={Object.values(loadingQuote).some(Boolean)}
+          className="bg-gray-700 text-gray-200 px-3 py-1 rounded text-xs hover:bg-gray-600 transition disabled:opacity-50"
+        >
+          {Object.values(loadingQuote).some(Boolean) ? 'Refreshing...' : '↻ Refresh All Prices'}
+        </button>
+      </div>
       <table className="w-full text-sm">
         <thead className="bg-gray-700 border-b border-gray-600">
           <tr>
@@ -94,15 +123,30 @@ export function PositionsList({
                 <td className="px-4 py-3 text-right text-gray-300">{position.shares}</td>
                 <td className="px-4 py-3 text-right text-gray-300">${position.entryPrice.toFixed(2)}</td>
                 <td className="px-4 py-3 text-right">
-                  <input
-                    type="number"
-                    value={lastPriceValue}
-                    onChange={e => handleLastPriceChange(position.id, e.target.value)}
-                    onBlur={e => handleLastPriceBlur(position.id, e.target.value)}
-                    placeholder="—"
-                    step="0.01"
-                    className="w-24 px-2 py-1 bg-gray-600 border border-gray-500 rounded text-white text-right placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  />
+                  <div className="flex items-center justify-end gap-1">
+                    <div className="flex flex-col items-end">
+                      <input
+                        type="number"
+                        value={lastPriceValue}
+                        onChange={e => handleLastPriceChange(position.id, e.target.value)}
+                        onBlur={e => handleLastPriceBlur(position.id, e.target.value)}
+                        placeholder="—"
+                        step="0.01"
+                        className="w-24 px-2 py-1 bg-gray-600 border border-gray-500 rounded text-white text-right placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      />
+                      {quoteError[position.id] && (
+                        <span className="text-red-400 text-xs mt-0.5">{quoteError[position.id]}</span>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => refreshQuote(position.id, position.ticker)}
+                      disabled={loadingQuote[position.id]}
+                      title="Fetch live price"
+                      className="text-gray-400 hover:text-blue-400 transition disabled:opacity-40 text-base"
+                    >
+                      {loadingQuote[position.id] ? '…' : '↻'}
+                    </button>
+                  </div>
                 </td>
                 <td className={`px-4 py-3 text-right font-semibold ${
                   openGain === null ? 'text-gray-500' :
