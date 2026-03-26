@@ -70,6 +70,22 @@ export function usePortfolio() {
     [state.positions]
   );
 
+  const editPosition = useCallback((positionId: string, updates: Omit<Position, 'id'>) => {
+    setState(prev => {
+      const position = prev.positions.find(p => p.id === positionId);
+      if (!position) return prev;
+      const oldBookCost = position.entryPrice * position.shares;
+      const newBookCost = updates.entryPrice * updates.shares;
+      return {
+        ...prev,
+        positions: prev.positions.map(p =>
+          p.id === positionId ? { ...updates, id: positionId } : p
+        ),
+        cash: prev.cash + oldBookCost - newBookCost,
+      };
+    });
+  }, []);
+
   const updateCash = useCallback((amount: number) => {
     setState(prev => ({
       ...prev,
@@ -96,6 +112,7 @@ export function usePortfolio() {
     state,
     setInitialEquity,
     addPosition,
+    editPosition,
     closePosition,
     updateCash,
     deletePosition,

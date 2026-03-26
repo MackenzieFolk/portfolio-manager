@@ -5,12 +5,14 @@ type PositionsListProps = {
   positions: Position[];
   cash: number;
   onClose: (positionId: string) => void;
+  onEdit: (positionId: string) => void;
 };
 
 export function PositionsList({
   positions,
   cash,
   onClose,
+  onEdit,
 }: PositionsListProps) {
   const totalEquity = calculateTotalEquity(positions, cash);
 
@@ -76,12 +78,20 @@ export function PositionsList({
                 <td className="px-4 py-3 text-right text-gray-300">${metrics.targets.r4.toFixed(2)}</td>
                 <td className="px-4 py-3 text-right text-gray-300">${metrics.targets.r5.toFixed(2)}</td>
                 <td className="px-4 py-3 text-center">
-                  <button
-                    onClick={() => onClose(position.id)}
-                    className="bg-red-600 text-white px-3 py-1 rounded text-xs hover:bg-red-700 transition"
-                  >
-                    Close
-                  </button>
+                  <div className="flex gap-1 justify-center">
+                    <button
+                      onClick={() => onEdit(position.id)}
+                      className="bg-blue-600 text-white px-3 py-1 rounded text-xs hover:bg-blue-700 transition"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => onClose(position.id)}
+                      className="bg-red-600 text-white px-3 py-1 rounded text-xs hover:bg-red-700 transition"
+                    >
+                      Close
+                    </button>
+                  </div>
                 </td>
               </tr>
             );

@@ -5,6 +5,7 @@ import { PortfolioSummary } from './components/PortfolioSummary';
 import { PositionsList } from './components/PositionsList';
 import { AddPositionForm } from './components/AddPositionForm';
 import { ClosePositionForm } from './components/ClosePositionForm';
+import { EditPositionForm } from './components/EditPositionForm';
 import { ClosedTradesTable } from './components/ClosedTradesTable';
 import { Position } from './types';
 import './App.css';
@@ -15,6 +16,8 @@ function App() {
   const [showAddPositionForm, setShowAddPositionForm] = useState(false);
   const [showClosePositionForm, setShowClosePositionForm] = useState(false);
   const [positionToClose, setPositionToClose] = useState<Position | null>(null);
+  const [showEditPositionForm, setShowEditPositionForm] = useState(false);
+  const [positionToEdit, setPositionToEdit] = useState<Position | null>(null);
   const [activeTab, setActiveTab] = useState<'positions' | 'closed'>('positions');
 
   const handleAddPosition = (position: Omit<Position, 'id'>) => {
@@ -35,6 +38,14 @@ function App() {
       portfolio.closePosition(positionToClose.id, exitPrice, exitDate, exitReason);
       setShowClosePositionForm(false);
       setPositionToClose(null);
+    }
+  };
+
+  const handleEditPosition = (positionId: string) => {
+    const position = portfolio.state.positions.find(p => p.id === positionId);
+    if (position) {
+      setPositionToEdit(position);
+      setShowEditPositionForm(true);
     }
   };
 
@@ -97,6 +108,7 @@ function App() {
                   positions={portfolio.state.positions}
                   cash={portfolio.state.cash}
                   onClose={handleClosePosition}
+                  onEdit={handleEditPosition}
                 />
                 <button
                   onClick={() => setShowAddPositionForm(true)}
@@ -128,6 +140,22 @@ function App() {
         positions={portfolio.state.positions}
         onAdd={handleAddPosition}
         onClose={() => setShowAddPositionForm(false)}
+      />
+
+      <EditPositionForm
+        isOpen={showEditPositionForm}
+        position={positionToEdit}
+        cash={portfolio.state.cash}
+        positions={portfolio.state.positions}
+        onSave={(positionId, updates) => {
+          portfolio.editPosition(positionId, updates);
+          setShowEditPositionForm(false);
+          setPositionToEdit(null);
+        }}
+        onClose={() => {
+          setShowEditPositionForm(false);
+          setPositionToEdit(null);
+        }}
       />
 
       <ClosePositionForm
