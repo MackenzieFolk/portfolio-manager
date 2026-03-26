@@ -22,6 +22,14 @@ export function PortfolioSummary({
   const gainLoss = totalEquity - initialEquity;
   const gainLossPercent = initialEquity > 0 ? (gainLoss / initialEquity) * 100 : 0;
 
+  const totalRiskDollar = positions.reduce((sum, pos) => {
+    const riskPerShare = pos.type === 'short'
+      ? pos.stopPrice - pos.entryPrice
+      : pos.entryPrice - pos.stopPrice;
+    return sum + riskPerShare * pos.shares;
+  }, 0);
+  const totalRiskPercent = totalEquity > 0 ? (totalRiskDollar / totalEquity) * 100 : 0;
+
   return (
     <div className="bg-gray-800 rounded-lg shadow-md p-6 mb-6 border border-gray-700">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -66,6 +74,25 @@ export function PortfolioSummary({
           >
             {gainLossPercent.toFixed(2)}%
           </p>
+        </div>
+        <div className="md:col-span-4 border-t border-gray-700 pt-4 mt-2">
+          <p className="text-gray-400 text-xs font-semibold uppercase tracking-wide mb-3">
+            Total Open Risk
+          </p>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-gray-400 text-sm font-semibold mb-1">Combined Risk $</p>
+              <p className="text-2xl font-bold text-orange-400">
+                ${totalRiskDollar.toFixed(2)}
+              </p>
+            </div>
+            <div>
+              <p className="text-gray-400 text-sm font-semibold mb-1">Combined Risk % of Equity</p>
+              <p className={`text-2xl font-bold ${totalRiskPercent > 6 ? 'text-red-400' : 'text-orange-400'}`}>
+                {totalRiskPercent.toFixed(2)}%
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
