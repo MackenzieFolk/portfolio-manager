@@ -4,6 +4,8 @@ import { ClosedTrade } from '../types';
 type ClosedTradesTableProps = {
   trades: ClosedTrade[];
   initialEquity: number;
+  portfolioCurrency?: string;
+  usdCadRate?: number;
 };
 
 export function ClosedTradesTable({ trades, initialEquity }: ClosedTradesTableProps) {
