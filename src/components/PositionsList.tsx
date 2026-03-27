@@ -127,6 +127,9 @@ export function PositionsList({
         const mBookCostConverted = convert(metrics.bookCost, mPosCurrency, portfolioCurrency, usdCadRate);
         const mRiskConverted = convert(metrics.initialRiskDollar, mPosCurrency, portfolioCurrency, usdCadRate);
         const openGain = calculateOpenGain(position);
+        const mOpenGainConverted = openGain !== null
+          ? { ...openGain, dollar: convert(openGain.dollar, mPosCurrency, portfolioCurrency, usdCadRate) }
+          : null;
         const currentR = calculateOpenRMultiple(position);
         const daysHeld = calculateDaysHeld(position.entryDate);
         return (
@@ -158,8 +161,8 @@ export function PositionsList({
                 </p>
               </div>
               <div><p className="text-gray-400 text-xs">Open Gain $</p>
-                <p className={`font-semibold ${openGain === null ? 'text-gray-500' : openGain.dollar >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                  {openGain === null ? '—' : `${openGain.dollar >= 0 ? '+' : ''}${fmt(openGain.dollar, mPosCurrency)}`}
+                <p className={`font-semibold ${mOpenGainConverted === null ? 'text-gray-500' : mOpenGainConverted.dollar >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                  {mOpenGainConverted === null ? '—' : `${mOpenGainConverted.dollar >= 0 ? '+' : ''}${fmt(mOpenGainConverted.dollar, portfolioCurrency)}`}
                 </p>
               </div>
               <div><p className="text-gray-400 text-xs">Risk ({portfolioCurrency})</p><p className="text-red-400 font-semibold">{fmt(mRiskConverted, portfolioCurrency)}</p></div>
@@ -228,6 +231,9 @@ export function PositionsList({
             const bookCostConverted = convert(metrics.bookCost, posCurrency, portfolioCurrency, usdCadRate);
             const riskDollarConverted = convert(metrics.initialRiskDollar, posCurrency, portfolioCurrency, usdCadRate);
             const openGain = calculateOpenGain(position);
+            const openGainConverted = openGain !== null
+              ? { ...openGain, dollar: convert(openGain.dollar, posCurrency, portfolioCurrency, usdCadRate) }
+              : null;
             const daysHeld = calculateDaysHeld(position.entryDate);
             const currentR = calculateOpenRMultiple(position);
             const lastPriceValue =
@@ -295,10 +301,10 @@ export function PositionsList({
                   </div>
                 </td>
                 <td className={`px-4 py-3 text-right font-semibold ${
-                  openGain === null ? 'text-gray-500' :
-                  openGain.dollar >= 0 ? 'text-green-400' : 'text-red-400'
+                  openGainConverted === null ? 'text-gray-500' :
+                  openGainConverted.dollar >= 0 ? 'text-green-400' : 'text-red-400'
                 }`}>
-                  {openGain === null ? '—' : `${openGain.dollar >= 0 ? '+' : ''}${fmt(openGain.dollar, posCurrency)}`}
+                  {openGainConverted === null ? '—' : `${openGainConverted.dollar >= 0 ? '+' : ''}${fmt(openGainConverted.dollar, portfolioCurrency)}`}
                 </td>
                 <td className={`px-4 py-3 text-right font-semibold ${
                   openGain === null ? 'text-gray-500' :

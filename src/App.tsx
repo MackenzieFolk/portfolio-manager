@@ -57,7 +57,7 @@ function App() {
   }, []);
 
   const handleAddPosition = (position: Omit<Position, 'id'>) => {
-    portfolio.addPosition(position);
+    portfolio.addPosition(position, usdCadRate);
     setShowAddPositionForm(false);
   };
 
@@ -71,7 +71,7 @@ function App() {
 
   const handleConfirmClose = (exitPrice: number, exitDate: string, exitReason?: string, shares?: number) => {
     if (positionToClose) {
-      portfolio.closePosition(positionToClose.id, exitPrice, exitDate, exitReason, shares);
+      portfolio.closePosition(positionToClose.id, exitPrice, exitDate, exitReason, shares, usdCadRate);
       setShowClosePositionForm(false);
       setPositionToClose(null);
     }
@@ -87,7 +87,7 @@ function App() {
 
   const handleSetInitialEquity = (equity: number, currency: 'USD' | 'CAD', date: string) => {
     portfolio.setInitialEquity(equity, date, currency);
-    portfolio.setCurrency(currency);
+    portfolio.setCurrency(currency, usdCadRate);
     setShowSettingsModal(false);
   };
 
@@ -109,7 +109,7 @@ function App() {
   };
 
   const handleConfirmAddTranche = (positionId: string, tranche: Tranche, newStop?: number) => {
-    portfolio.addTranche(positionId, tranche, newStop);
+    portfolio.addTranche(positionId, tranche, newStop, usdCadRate);
     setShowAddTrancheForm(false);
     setPositionForTranche(null);
   };
@@ -142,7 +142,7 @@ function App() {
           onEditEquity={() => setShowSettingsModal(true)}
           onEditPosition={handleEditPosition}
           onClosePosition={handleClosePosition}
-          onDeletePosition={portfolio.deletePosition}
+          onDeletePosition={id => portfolio.deletePosition(id, usdCadRate)}
           onAddTranche={handleAddTranche}
         />
 
@@ -179,7 +179,7 @@ function App() {
                   usdCadRate={usdCadRate}
                   onClose={handleClosePosition}
                   onEdit={handleEditPosition}
-                  onDelete={portfolio.deletePosition}
+                  onDelete={id => portfolio.deletePosition(id, usdCadRate)}
                   onUpdateLastPrice={portfolio.updateLastPrice}
                   onAddTranche={handleAddTranche}
                 />
@@ -250,7 +250,7 @@ function App() {
       <CsvImportModal
         isOpen={showCsvImport}
         defaultCurrency={portfolio.state.initialEquityCurrency ?? portfolio.state.currency}
-        onImport={positions => positions.forEach(p => portfolio.addPosition(p))}
+        onImport={positions => positions.forEach(p => portfolio.addPosition(p, usdCadRate))}
         onClose={() => setShowCsvImport(false)}
       />
 
